@@ -1,0 +1,47 @@
+{
+  "name": "payment-gateway-integration",
+  "version": "1.0.0",
+  "description": "",
+  "homepage": "https://github.com/Chiomafranca/Payment-Gateway-Integration#readme",
+  "bugs": {
+    "url": "https://github.com/Chiomafranca/Payment-Gateway-Integration/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Chiomafranca/Payment-Gateway-Integration.git"
+  },
+  "license": "ISC",
+  "author": "Chioma",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon index.js"
+  },
+  "dependencies": {
+    "bull": "^4.16.5",
+    "compression": "^1.8.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.5.0",
+    "helmet": "^8.0.0",
+    "hpp": "^0.2.3",
+    "mongoose": "^8.10.1",
+    "morgan": "^1.10.0",
+    "paypal-rest-sdk": "^1.8.1",
+    "stripe": "^17.6.0",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
+    "winston": "^3.17.0",
+    "xss-clean": "^0.1.4"
+  },
+  "devDependencies": {
+    "dotenv-cli": "^8.0.0",
+    "eslint": "^9.20.1",
+    "jest": "^29.7.0",
+    "nodemon": "^3.1.9",
+    "supertest": "^7.0.0"
+  }
+}
