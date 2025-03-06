@@ -49,14 +49,17 @@ const startServer = () => {
 
   // Connect Queue
   connectQueue();
+  
 
   // Routes
   app.use('/api/auth', authRoutes);
   app.use('/api/payment', paymentRoutes);
   app.use('/api/subscription', subscriptionRoutes);
 
+
   // Webhooks
   app.post('/webhook/stripe', express.raw({ type: 'application/json' }), webhookStripe);
+
   app.post('/webhook/paypal', webhookPaypal);
 
   // Error Handling Middleware
