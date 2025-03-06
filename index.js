@@ -15,16 +15,20 @@ const swaggerSpec = require('./config/swagger');
 const logger = require('./utils/logger.js');
 const { connectQueue } = require('./queues/paymentQueue');
 const cookieParser = require('cookie-parser');
+
 const hpp = require('hpp');
 const xssClean = require('xss-clean');
 //const { validateEnv } = require('./utils/validateEnv');
+
 const limiter = require('./middlewares/rateLimitMiddleware');
 
 dotenv.config();
+
 //validateEnv();
 
 const startServer = () => {
   const app = express();
+
 
   // Security Middleware
   app.use(cors({ origin: process.env.ALLOWED_ORIGINS.split(','), credentials: true }));
