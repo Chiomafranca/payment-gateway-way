@@ -1,31 +1,40 @@
 const mongoose = require('mongoose');
 
 // Define the schema for webhook events
-const webhookSchema = new mongoose.Schema({
-  eventId: { 
-    type: String, 
-    required: true, 
-    unique: true,  // Ensure each event is unique by its eventId
+const webhookSchema = new mongoose.Schema(
+  {
+    eventId: { 
+      type: String, 
+      required: true, 
+      unique: true, 
+    },
+    eventType: { 
+      type: String, 
+      required: true, 
+    },
+    data: { 
+      type: Object, 
+      required: true,  
+    },
+    receivedAt: { 
+      type: Date, 
+      default: Date.now, 
+    },
+    processed: { 
+      type: Boolean, 
+      default: false,  
+    },
+    processedAt: { 
+      type: Date, 
+      required: false, 
+    },
   },
-  eventType: { 
-    type: String, 
-    required: true,  // The type of the Stripe event (e.g., 'payment_intent.succeeded')
-  },
-  data: { 
-    type: Object, 
-    required: true,  // The actual data associated with the event
-  },
-  receivedAt: { 
-    type: Date, 
-    default: Date.now,  // Timestamp when the event was received
-  },
-  processed: { 
-    type: Boolean, 
-    default: false,  // Whether the event has been processed (optional)
-  },
-});
+  { timestamps: true }
+);
 
-// Create a model based on the schema
+
+webhookSchema.index({ eventId: 1, eventType: 1 });
+
 const WebhookEvent = mongoose.model('WebhookEvent', webhookSchema);
 
 module.exports = WebhookEvent;

@@ -3,8 +3,7 @@ const dotenv = require('dotenv');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
-const mongoose = require('./config/db');
-//const paymentRoutes = require('./routes/paymentRoutes');
+const paymentRoutes = require('./routes/paymentRoutes');
 const subscriptionRoutes = require('./routes/subscriptionRoutes');
 const authRoutes = require('./routes/authRoutes.js');
 const { errorHandler, notFound } = require('./middlewares/errorMiddleware');
@@ -15,59 +14,59 @@ const swaggerSpec = require('./config/swagger');
 const logger = require('./utils/logger.js');
 const { connectQueue } = require('./queues/paymentQueue');
 const cookieParser = require('cookie-parser');
-
+const connectDB = require('./config/db');
 const hpp = require('hpp');
 const xssClean = require('xss-clean');
-//const { validateEnv } = require('./utils/validateEnv');
+const { apiLimiter } = require('./middlewares/rateLimitMiddleware');
+const userRoute = require("./routes/userRoutes.js");
+const refundRoutes = require('./routes/refundRoutes.js')
 
-const limiter = require('./middlewares/rateLimitMiddleware');
-
+// Initialize dotenv
 dotenv.config();
 
-//validateEnv();
+const app = express();
 
+// DATABASE CONNECTION
+connectDB();
+
+// MIDDLEWARES
+app.use(helmet());
+app.use(xssClean()); // Prevent XSS attacks
+app.use(hpp()); // Prevent HTTP Parameter Pollution
+app.use(morgan('combined', { stream: logger.stream }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+app.use(compression()); // Improves performance
+app.use(apiLimiter); // Rate Limiting Middleware
+
+// API Documentation
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+// ROUTES
+app.use('/api/payment', paymentRoutes);
+app.use('/api/subscription', subscriptionRoutes);
+app.use('/api/users', userRoute);
+app.use('/api/auth', authRoutes);
+app.use('/api/refunds', refundRoutes)
+
+// Webhooks
+// app.post('/webhook/stripe', express.raw({ type: 'application/json' }), webhookStripe);
+// app.post('/webhook/paypal', webhookPaypal);
+
+// Error Handling Middleware
+app.use(notFound);
+app.use(errorHandler);
+
+// Start Server
 const startServer = () => {
-  const app = express();
-
-
-  // Security Middleware
-  app.use(cors({ origin: process.env.ALLOWED_ORIGINS.split(','), credentials: true }));
-  app.use(helmet());
-  app.use(xssClean()); // Prevent XSS attacks
-  app.use(hpp()); // Prevent HTTP Parameter Pollution
-  app.use(morgan('combined', { stream: logger.stream }));
-  app.use(express.json());
-  app.use(express.urlencoded({ extended: true }));
-  app.use(cookieParser());
-  app.use(compression()); // Improves performance
-
-  // API Documentation
-  app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-
-  // Rate Limiting
-  app.use(limiter);
+  const port = process.env.PORT || 5001;
+  app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+  });
 
   // Connect Queue
-  connectQueue();
-  
-
-  // Routes
-  app.use('/api/auth', authRoutes);
-  app.use('/api/payment', paymentRoutes);
-  app.use('/api/subscription', subscriptionRoutes);
-
-
-  // Webhooks
-  app.post('/webhook/stripe', express.raw({ type: 'application/json' }), webhookStripe);
-
-  app.post('/webhook/paypal', webhookPaypal);
-
-  // Error Handling Middleware
-  app.use(notFound);
-  app.use(errorHandler);
-
-  const PORT = process.env.PORT || 5000;
-  app.listen(PORT, () => console.log(`Worker ${process.pid} running on port ${PORT}`));
+  // connectQueue();
 };
 
-module.exports = startServer;
+startServer();

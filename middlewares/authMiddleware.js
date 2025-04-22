@@ -1,29 +1,33 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
-/**
- * Middleware to protect routes - Verifies JWT token
- */
 exports.protect = async (req, res, next) => {
   let token;
 
   try {
-    token = req.headers.authorization?.split(' ')[1]; // Extract token from "Bearer <token>"
+    // Check if token is in headers
+    token = req.headers.authorization?.split(' ')[1];
 
     if (!token) {
       return res.status(401).json({ message: 'Not authorized, no token' });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET); // Verify token
+    // Verify and decode the token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    req.user = await User.findById(decoded.id).select('-password'); // Attach user to request object
+    // Attach user info to request object
+    req.user = await User.findById(decoded.id).select('-password');
     if (!req.user) {
       return res.status(401).json({ message: 'User not found' });
     }
 
-    next(); // Continue to the next middleware/controller
+    next(); // Continue to next middleware or route
   } catch (error) {
     console.error('Auth error:', error);
-    res.status(401).json({ message: 'Not authorized, invalid token' });
+
+    if (error.name === 'TokenExpiredError') {
+      return res.status(401).json({ message: 'Token expired' });
+    }
+    return res.status(401).json({ message: 'Not authorized, invalid token' });
   }
 };

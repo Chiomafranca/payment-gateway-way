@@ -6,7 +6,7 @@ const {
     updatePayment,
     deletePayment
 } = require('../controllers/paymentController.js');
-const { protect } = require('../middlewares/authMiddleware.js');
+const { protect } = require('../middlewares/authMiddleware.js'); 
 const { apiLimiter } = require('../middlewares/rateLimitMiddleware.js');
 
 const router = express.Router();
